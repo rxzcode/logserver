@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+    nginx.ingress.kubernetes.io/auth-url: "http://auth-service.default.svc.cluster.local/auth$request_uri"
+    nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-sub, x-auth-tenant, x-auth-role"
+    nginx.ingress.kubernetes.io/auth-snippet: |
+      if ($request_uri ~* "^/auth") {
+        set $allow_bypass 1;
+      }
+      if ($allow_bypass = 1) {
+        return 200;
+      }
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: ""
+    - http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: auth-service
+                port:
+                  number: 80
+          - path: /api/v1/logs
+            pathType: Prefix
+            backend:
+              service:
+                name: log-service
+                port:
+                  number: 80
+          - path: /api/v1/tenants
+            pathType: Prefix
+            backend:
+              service:
+                name: tenant-service
+                port:
+                  number: 80

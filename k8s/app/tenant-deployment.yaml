@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tenant-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tenant
+  template:
+    metadata:
+      labels:
+        app: tenant
+    spec:
+      containers:
+        - name: tenant
+          image: tenant-service
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://mongodb:27017"

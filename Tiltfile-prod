@@ -1,0 +1,45 @@
+# Disable watching
+watch_settings(ignore=["**/*"])
+
+# AWS ECR base
+aws_account_id = "123456789012"
+region = "us-east-1"
+ecr_base = f"{aws_account_id}.dkr.ecr.{region}.amazonaws.com"
+
+# Auth to ECR using shell
+local("aws ecr get-login-password --region " + region + " | docker login --username AWS --password-stdin " + ecr_base)
+
+# List of services to build
+services = {
+    "auth-service": "./app/auth",
+    "tenant-service": "./app/tenant",
+    "log-service": "./app/log",
+    "log-worker": "./app/log_worker",
+}
+
+# Build and push each service
+for name, path in services.items():
+    full_image_name = f"{ecr_base}/{name}:prod"
+    docker_build(
+        full_image_name,
+        context=path,
+        dockerfile="Dockerfile",  # or custom path
+        tag=full_image_name,
+        push=True
+    )
+
+# Load K8s YAMLs that use those image names
+k8s_yaml([
+    "k8s/prod/mongodb-deployment.yaml",
+    "k8s/prod/mongodb-service.yaml",
+
+    "k8s/prod/auth-deployment.yaml",
+    "k8s/prod/auth-service.yaml",
+    "k8s/prod/tenant-deployment.yaml",
+    "k8s/prod/tenant-service.yaml",
+    "k8s/prod/log-deployment.yaml",
+    "k8s/prod/log-service.yaml",
+    "k8s/prod/log-worker-deployment.yaml",
+
+    "k8s/prod/ingress.yaml"
+])
