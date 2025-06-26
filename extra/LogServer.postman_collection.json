@@ -1,0 +1,637 @@
+{
+	"info": {
+		"_postman_id": "5e22e221-9e14-4ca8-885c-756b57161e46",
+		"name": "LogServer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "337986"
+	},
+	"item": [
+		{
+			"name": "Tenant add",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"ABC\",\n  \"key\": \"abc\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/tenants",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tenants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tenant get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"ABC\",\n  \"key\": \"ABC\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/tenants",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"tenants"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log add",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"action\": \"update\",\n  \"resource_type\": \"user\",\n  \"resource_id\": \"123\",\n  \"timestamp\": \"2025-06-26T01:23:45.678Z\",\n  \"ip_address\": \"192.168.0.1\",\n  \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\",\n  \"before\": {\n    \"email\": \"old@example.com\",\n    \"name\": \"Old Name\"\n  },\n  \"after\": {\n    \"email\": \"new@example.com\",\n    \"name\": \"New Name\"\n  },\n  \"metadata\": {\n    \"editor\": \"admin\",\n    \"source\": \"dashboard\"\n  },\n  \"severity\": \"WARNING\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log add bulk",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\n  \"action\": \"update\",\n  \"resource_type\": \"user\",\n  \"resource_id\": \"123\",\n  \"timestamp\": \"2025-06-26T01:23:45.678Z\",\n  \"ip_address\": \"192.168.0.1\",\n  \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\",\n  \"before\": {\n    \"email\": \"old@example.com\",\n    \"name\": \"Old Name\"\n  },\n  \"after\": {\n    \"email\": \"new@example.com\",\n    \"name\": \"New Name\"\n  },\n  \"metadata\": {\n    \"editor\": \"admin\",\n    \"source\": \"dashboard\"\n  },\n  \"severity\": \"WARNING\"\n},\n{\n  \"action\": \"update\",\n  \"resource_type\": \"user\",\n  \"resource_id\": \"123\",\n  \"timestamp\": \"2025-06-26T01:23:45.678Z\",\n  \"ip_address\": \"192.168.0.1\",\n  \"user_agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64)\",\n  \"before\": {\n    \"email\": \"old@example.com\",\n    \"name\": \"Old Name\"\n  },\n  \"after\": {\n    \"email\": \"new@example.com\",\n    \"name\": \"New Name\"\n  },\n  \"metadata\": {\n    \"editor\": \"admin\",\n    \"source\": \"dashboard\"\n  },\n  \"severity\": \"WARNING\"\n}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs/bulk",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs",
+						"bulk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log get",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log get stats",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs/stats",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs",
+						"stats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log get detail",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs/66c14550-26b7-4da9-b6e3-229fe105aad8",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs",
+						"66c14550-26b7-4da9-b6e3-229fe105aad8"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log clean",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "secret",
+							"value": "{{secret}}",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "header",
+							"value": "{\n    \"alg\": \"HS256\"\n}",
+							"type": "string"
+						},
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost/api/v1/logs/cleanup",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs",
+						"cleanup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "WEBSOCK",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "ws://localhost/api/v1/logs/stream?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU",
+					"protocol": "ws",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"api",
+						"v1",
+						"logs",
+						"stream"
+					],
+					"query": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

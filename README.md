@@ -8,7 +8,7 @@ A log server write with Python and FastAPI
 
 - [Live Demo](https://vue-dbml.devseason.com)
 
-![Project Screenshot](./images/benchmark.png)
+![Project Screenshot](./extra/benchmark.png)
 
 ### Project APIs
 POST   /api/v1/logs                   # Create log entry (with tenant ID)
@@ -56,14 +56,26 @@ POST   /api/v1/tenants                # Create new tenant (admin only)
     Install docker: https://www.docker.com/
 
     Run the following commands to clone and set up the project:
+    Tilt will watch services code changes and reload service
     ```bash
     git clone https://github.com/rxzcode/logserver.git
     cd logserver
-    make up
+    make up # It bring up minikube K8S cluster, run all apps, services with tilt
     minikube tunnel # Use it to open port for K8S server: http://localhost/api/v1/logs
     ```
-    Tilt will watch services code changes and reload service
 
+    Run benchmark, it bring a minikube pod to run Hey
+    ```bash
+    make benchmark
+    ```
+
+    For local dev IDE linting, linking libs
+    ```bash
+    # At root folder
+    python -m .venv
+    source .env/bin/activate
+    pip install -r requirements.txt
+    ```
 
 2. **Deploy AWS K8S**:
     ```bash
@@ -74,12 +86,6 @@ POST   /api/v1/tenants                # Create new tenant (admin only)
 3. **License**:
    - This project is licensed under the MIT License. Please provide attribution to @rxzcode.
 
-# Extra - this repo is a module of project
-- ZCODE - DBML - Crud generate and sync code - low code
-- This use DBML, AI gen DBML, gen CODE for front end, back end (expressjs, vuejs)
-
-![Crud Screenshot](./public/crud-dbml.png)
-![Crud Screenshot](./public/crud.png)
-![Form Screenshot](./public/crud-form.png)
-![Setting Screenshot](./public/crud-setting.png)
-![Gallery Screenshot](./public/crud-gallery.png)
+# Extra: benchmark result
+- With 10k total - 1k concurrent
+![Benchmark](./extra/benchmark.png)

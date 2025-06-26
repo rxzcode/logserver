@@ -1,6 +1,6 @@
 # Start minikube if not already running
 minikube-start:
-	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=6 --memory=4000 --addons=ingress
+	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --memory=1000 --addons=ingress
 
 # Start tunnel in background (for LoadBalancer services)
 minikube-config:
@@ -29,8 +29,5 @@ restart:
 	kubectl rollout restart deployment/auth-service
 	kubectl rollout restart deployment/data-service
 
-# Display useful URL for testing
-url:
-	@echo "Minikube IP: $$(minikube ip)"
-	@echo "Try this in your browser or curl:"
-	@echo "curl -X POST http://$$(minikube ip)/api/data -H 'Authorization: Bearer <jwt>' -d '{\"foo\":\"bar\"}' -H 'Content-Type: application/json'"
+benchmark:
+	bash scripts/run_benchmark.sh
