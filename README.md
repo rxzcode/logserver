@@ -1,28 +1,46 @@
 # Python log server
 A log server write with Python and FastAPI
-- Use K8S
-- Local use with docker + minikube + tilt
-- Local use nginx-ingress   - AWS ALB
-- Local use ElasticMQ       - AWS SQS
-- Local use MongoDB service - AWS Managed Atlas
-
 - [Live Demo](https://vue-dbml.devseason.com)
 
-![Project Screenshot](./extra/benchmark.png)
+### 📘 Project APIs
 
-### Project APIs
-POST   /api/v1/logs                   # Create log entry (with tenant ID)
-GET    /api/v1/logs                   # Search/filter logs (tenant-scoped)
-GET    /api/v1/logs/{id}              # Get specific log entry (tenant-scoped)
-GET    /api/v1/logs/export            # Export logs (tenant-scoped)
-GET    /api/v1/logs/stats             # Get log statistics (tenant-scoped)
-POST   /api/v1/logs/bulk              # Bulk log creation (with tenant ID)
-DELETE /api/v1/logs/cleanup           # Cleanup old logs (tenant-scoped)
-WS     /api/v1/logs/stream            # Real-time log streaming (tenant-scoped)
-GET    /api/v1/tenants                # List accessible tenants (admin only)
-POST   /api/v1/tenants                # Create new tenant (admin only)
+| Method | Endpoint                       | Description                            | Tenant Scoped |
+|--------|--------------------------------|----------------------------------------|----------------|
+| POST   | `/api/v1/logs`                 | Create a log entry                     | ✅ Yes         |
+| GET    | `/api/v1/logs`                 | Search/filter logs                     | ✅ Yes         |
+| GET    | `/api/v1/logs/{id}`            | Get specific log entry                 | ✅ Yes         |
+| GET    | `/api/v1/logs/export`          | Export logs                            | ✅ Yes         |
+| GET    | `/api/v1/logs/stats`           | Get log statistics                     | ✅ Yes         |
+| POST   | `/api/v1/logs/bulk`            | Bulk log creation                      | ✅ Yes         |
+| DELETE | `/api/v1/logs/cleanup`         | Cleanup old logs                       | ✅ Yes         |
+| WS     | `/api/v1/logs/stream`          | Real-time log streaming via WebSocket  | ✅ Yes         |
+| GET    | `/api/v1/tenants`              | List accessible tenants (admin only)   | ❌ No (Admin)  |
+| POST   | `/api/v1/tenants`              | Create a new tenant (admin only)       | ❌ No (Admin)  |
 
 ### Project structure folder
+
+### FLow chart
+![Flowchart](./extra/flowchart.png)
+```
+---
+config:
+  flowchart:
+    htmlLabels: false
+  layout: dagre
+---
+flowchart LR
+ subgraph s1["Gateway and Auth"]
+        C{"Auth RBAC"}
+        B["Ingress ALB"]
+  end
+    B --> C
+    A["Client"] --> s1
+    s1 -- ✅ OK --> D["Log Service"] & E["Tenant Service"]
+    D --> SQS["SQS Message"] & WS["Broadcast Service"]
+    SQS --> LW["Log Worker"]
+    LW --> DB["MongoDB"]
+    s1 -- ❌ Not OK --> F["401 Unauthorized"]
+```
 
 ---
 
