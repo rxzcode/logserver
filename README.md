@@ -17,6 +17,7 @@ A log server write with Python and FastAPI
 | POST   | `/api/v1/tenants`              | Create a new tenant (admin only)       | ❌ No (Admin)  |
 
 ### Project structure folder
+```text
 logserver/
 ├── app/
 │ ├── auth/ # Auth service (embedded in gateway, on AWS uses ALB + Lambda)
@@ -28,8 +29,69 @@ logserver/
 │ └── app/ # Kubernetes YAMLs for deploying services
 │
 └── scripts/ # Benchmarking and utility scripts
+```
 
-### FLow chart
+---
+
+### Todo
+- [x] Core audit log creation and retrieval API endpoints
+- [x] Database setup and configuration (PostgreSQL/MongoDB/DynamoDB)
+- [x] API Gateway or ALB setup and configuration
+- [x] Basic search and filtering functionality
+- [x] Database schema design and implementation with multi-tenant support
+- [x] Authentication and authorization system with tenant isolation
+- [x] Basic security controls and data validation
+- [x] AWS SQS setup for background processing
+- [x] Multi-tenant implementation and tenant management
+
+---
+
+### 🧱 High-Level Architecture
+
+#### 🔹 1. Microservices Design
+
+| Service       | Description |
+|---------------|-------------|
+| `auth`        | Authenticates requests (JWT), handles **RBAC** and **tenant isolation**. Deployed as a FastAPI service locally or as a **Lambda behind ALB** in AWS. |
+| `log`         | Receives and serves logs (create, search, export, stats, cleanup). Stores data in MongoDB. |
+| `log_worker`  | Background processor that consumes log events from **SQS** (or ElasticMQ locally). Handles async processing and storage. |
+| `tenant`      | Manages tenant records (create, list). |
+
+---
+
+#### 🔹 2. Core Features
+
+- ✅ **Multi-Tenancy**: Isolates data by `tenant_id`, supports role-based access (`admin`, `auditor`, `viewer`)
+- ✅ **Event-Driven Logging**: Log API sends events to SQS, processed asynchronously by `log_worker`
+- ✅ **Real-time Log Streaming**: WebSocket API `/logs/stream` per tenant
+- ✅ **RBAC Auth**: JWT-based auth with tenant-scoped role validation
+
+---
+
+### 🛠️ Deployment Layers
+
+| Layer         | Local (Minikube)                  | Production (AWS)                     |
+|---------------|-----------------------------------|--------------------------------------|
+| **Gateway**   | `ingress-nginx`                   | AWS `ALB` with routing to Lambda     |
+| **Auth**      | FastAPI service                   | AWS Lambda (Auth RBAC Handler)       |
+| **Message**   | `ElasticMQ`                       | AWS `SQS`                            |
+| **Database**  | `MongoDB` (Docker)                | MongoDB Atlas or EC2-hosted instance |
+| **K8s Infra** | `Tilt`, `Makefile`, `Minikube`    | EKS, ArgoCD, Terraform                |
+
+---
+
+### 🔁 Request Flow
+
+```text
+Client
+  ↓
+Ingress (nginx / ALB)
+  ↓
+Auth Service (or Lambda)
+  ├─ [✅ OK] → Log Service → MongoDB
+  ├─ [✅ OK] → Tenant Service
+  └─ [❌ Not OK] → 401 Unauthorized
+```
 ```mermaid
 ---
 config:
@@ -50,68 +112,6 @@ flowchart LR
     LW --> DB["MongoDB"]
     s1 -- ❌ Not OK --> F["401 Unauthorized"]
 ```
-
----
-
-## Todo
-- [x] Core audit log creation and retrieval API endpoints
-- [x] Database setup and configuration (PostgreSQL/MongoDB/DynamoDB)
-- [x] API Gateway or ALB setup and configuration
-- [x] Basic search and filtering functionality
-- [x] Database schema design and implementation with multi-tenant support
-- [x] Authentication and authorization system with tenant isolation
-- [x] Basic security controls and data validation
-- [x] AWS SQS setup for background processing
-- [x] Multi-tenant implementation and tenant management
-
----
-
-## 🧱 High-Level Architecture
-
-### 🔹 1. Microservices Design
-
-| Service       | Description |
-|---------------|-------------|
-| `auth`        | Authenticates requests (JWT), handles **RBAC** and **tenant isolation**. Deployed as a FastAPI service locally or as a **Lambda behind ALB** in AWS. |
-| `log`         | Receives and serves logs (create, search, export, stats, cleanup). Stores data in MongoDB. |
-| `log_worker`  | Background processor that consumes log events from **SQS** (or ElasticMQ locally). Handles async processing and storage. |
-| `tenant`      | Manages tenant records (create, list), configurations, and access control. |
-
----
-
-### 🔹 2. Core Features
-
-- ✅ **Multi-Tenancy**: Isolates data by `tenant_id`, supports role-based access (`admin`, `auditor`, `viewer`)
-- ✅ **Event-Driven Logging**: Log API sends events to SQS, processed asynchronously by `log_worker`
-- ✅ **Real-time Log Streaming**: WebSocket API `/logs/stream` per tenant
-- ✅ **RBAC Auth**: JWT-based auth with tenant-scoped role validation
-
----
-
-## 🛠️ Deployment Layers
-
-| Layer         | Local (Minikube)                  | Production (AWS)                     |
-|---------------|-----------------------------------|--------------------------------------|
-| **Gateway**   | `ingress-nginx`                   | AWS `ALB` with routing to Lambda     |
-| **Auth**      | FastAPI service                   | AWS Lambda (Auth RBAC Handler)       |
-| **Message**   | `ElasticMQ`                       | AWS `SQS`                            |
-| **Database**  | `MongoDB` (Docker)                | MongoDB Atlas or EC2-hosted instance |
-| **K8s Infra** | `Tilt`, `Makefile`, `Minikube`    | EKS, ArgoCD, Terraform                |
-
----
-
-## 🔁 Request Flow
-
-```text
-Client
-  ↓
-Ingress (nginx / ALB)
-  ↓
-Auth Service (or Lambda)
-  ├─ [✅ OK] → Log Service → MongoDB
-  ├─ [✅ OK] → Tenant Service
-  └─ [❌ Not OK] → 401 Unauthorized
-
 ---
 
 ## Installation
