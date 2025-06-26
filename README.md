@@ -167,9 +167,9 @@ Contributions welcome — Happy Coding! 😊
 
 ---
 
-## 📊 Benchmark Results
+## 📊 Benchmark Results, Others
+> Postman API:
+[📥 Download Postman Collection](./extra/LogServer.postman_collection.json)
+
 > Load Test: 10,000 requests, 1,000 concurrent
 ![Benchmark Result](./extra/benchmark.png)
-
-> Postman API:
-![Benchmark Result](./extra/LogServer.postman_collection.json)
