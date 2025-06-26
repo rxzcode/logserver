@@ -168,8 +168,8 @@ Contributions welcome — Happy Coding! 😊
 ---
 
 ## 📊 Benchmark Results
-> Postman API:
-![Benchmark Result](./LogServer.postman_collection.json)
-
 > Load Test: 10,000 requests, 1,000 concurrent
 ![Benchmark Result](./extra/benchmark.png)
+
+> Postman API:
+![Benchmark Result](./extra/LogServer.postman_collection.json)
