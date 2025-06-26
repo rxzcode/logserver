@@ -21,7 +21,7 @@ A log server write with Python and FastAPI
 
 ### FLow chart
 ![Flowchart](./extra/flowchart.png)
-```
+```mermaid
 ---
 config:
   flowchart:
