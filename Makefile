@@ -4,8 +4,8 @@
 
 # Start minikube if not already running
 minikube-start:
-	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --memory=1000 --addons=ingress
 	@kubectl config use-context minikube
+	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --addons=ingress
 
 # Start tunnel in background (for LoadBalancer services)
 minikube-config:

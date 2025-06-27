@@ -7,6 +7,10 @@ docker_build("log-worker", "./app/log_worker")
 # Load both service + deployment YAMLs
 k8s_yaml(
     [
+        # Networking and Ingress
+        "k8s/dev/misc/elasticmq-deployment.yaml",
+        "k8s/dev/misc/ingress.yaml"
+
         # Database
         "k8s/dev/db/mongodb-service.yaml",
 
@@ -15,9 +19,5 @@ k8s_yaml(
         "k8s/dev/app/tenant-service.yaml",
         "k8s/dev/app/log-service.yaml",
         "k8s/dev/app/log-worker-deployment.yaml",
-
-        # Networking and Ingress
-        "k8s/dev/misc/elasticmq-deployment.yaml",
-        "k8s/dev/misc/ingress.yaml"
     ]
 )
