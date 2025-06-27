@@ -8,20 +8,16 @@ docker_build("log-worker", "./app/log_worker")
 k8s_yaml(
     [
         # Database
-        "k8s/db/mongodb-deployment.yaml",
-        "k8s/db/mongodb-service.yaml",
-        "k8s/misc/elasticmq-deployment.yaml",
+        "k8s/dev/db/mongodb-service.yaml",
 
         # Applications
-        "k8s/app/auth-deployment.yaml",
-        "k8s/app/auth-service.yaml",
-        "k8s/app/tenant-deployment.yaml",
-        "k8s/app/tenant-service.yaml",
-        "k8s/app/log-deployment.yaml",
-        "k8s/app/log-service.yaml",
-        "k8s/app/log-worker-deployment.yaml",
+        "k8s/dev/app/auth-service.yaml",
+        "k8s/dev/app/tenant-service.yaml",
+        "k8s/dev/app/log-service.yaml",
+        "k8s/dev/app/log-worker-deployment.yaml",
 
         # Networking and Ingress
-        "k8s/network/ingress.yaml"
+        "k8s/dev/misc/elasticmq-deployment.yaml",
+        "k8s/dev/misc/ingress.yaml"
     ]
 )

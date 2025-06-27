@@ -3,13 +3,16 @@
 A high-performance, multi-tenant log server built with **Python** and **FastAPI**.
 
 🔗 [**Live Demo**](http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs)
+
 ```bash
 # On staging machine AWS-EKS, don't worry i will shutdown it soon
 # Try to get log stats, it tenant scoped
 curl --location 'http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs/stats' \
 --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU'
+
 # Open websocket for streaming logs
 wscat -c "ws://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs/stream?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU"
+
 # Add a logs for watch stream
 curl --location 'http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs' \
 --header 'Content-Type: application/json' \
@@ -201,14 +204,16 @@ Contributions welcome — Happy Coding! 😊
 ---
 
 ## 📊 Benchmark Results, Others
+
 > Postman API:
-[📥 Download Postman Collection](./extra/LogServer.postman_collection.json)
-[📥 Download Postman Local Env](./extra/log-localhost.postman_environment.json)
-[📥 Download Postman Stage Env](./extra/log-aws.postman_environment.json)
+
+- [📥 Download Postman Collection](./extra/LogServer.postman_collection.json)
+- [📥 Download Postman Local Env](./extra/log-localhost.postman_environment.json)
+- [📥 Download Postman Stage Env](./extra/log-aws.postman_environment.json)
+
 ![Postman](./extra/PostmanAPI.png)
 
 > Websocket:
 ![Websocket](./extra/Websocket.png)
-
 > Load Test: 10,000 requests, 1,000 concurrent - it on local docker + minikube (cause aws fee 😃)
 ![Benchmark Result](./extra/benchmark.png)

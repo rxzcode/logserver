@@ -16,4 +16,15 @@ spec:
         - name: auth
           image: auth-service
           ports:
-            - containerPort: 8000
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth
+  ports:
+    - port: 80
+      targetPort: 80

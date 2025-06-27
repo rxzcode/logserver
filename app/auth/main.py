@@ -27,7 +27,6 @@ async def validate_token(request: Request):
     path = request.headers.get("x-auth-request-redirect", "")
     token = None
 
-    # Bypass
     if auth and auth.startswith("Bearer "):
         token = auth[7:]
     else:
@@ -88,6 +87,10 @@ async def get_token(payload: TokenPayload):
         return {"token": token}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/")
+def custom_401():
+    return JSONResponse(status_code=401, content={"code": 401, "msg": "Unauthorized"})
 
 def check_rbac(path: str, role: str):
     if path.startswith("/api/v1/tenant") and role != "admin":

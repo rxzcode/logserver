@@ -46,3 +46,6 @@ up-prod:
 	bash scripts/prepare_info.sh
 	bash scripts/prepare_cluster.sh
 	tilt up -f Tiltfile-production
+
+tilt-prod:
+	tilt up -f Tiltfile-production
