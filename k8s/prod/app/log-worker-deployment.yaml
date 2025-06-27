@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-worker
+  template:
+    metadata:
+      labels:
+        app: log-worker
+    spec:
+      containers:
+        - name: log-worker
+          image: 366141533193.dkr.ecr.ap-southeast-1.amazonaws.com/log-worker:prod
+          ports:
+            - containerPort: 80
+          env:
+            - name: SQS_URL
+              value: http://elasticmq:9324
+            - name: SQS_QUEUE
+              value: http://elasticmq:9324/queue/log-queue
+            - name: MONGODB_URI
+              value: mongodb://mongodb:27017

@@ -1,6 +1,11 @@
+#############
+# LOCAL DEV #
+#############
+
 # Start minikube if not already running
 minikube-start:
 	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --memory=1000 --addons=ingress
+	@kubectl config use-context minikube
 
 # Start tunnel in background (for LoadBalancer services)
 minikube-config:
@@ -8,7 +13,6 @@ minikube-config:
 
 # Launch Tilt (foreground)
 tilt:
-	@kubectl config use-context minikube
 	tilt up
 
 # Stop Tilt (but keep minikube running)
@@ -31,3 +35,14 @@ restart:
 
 benchmark:
 	bash scripts/run_benchmark.sh
+
+
+###########
+# AWS K8S #
+###########
+up-prod:
+	@kubectl config use-context YOUR_EKS_CONTEXT
+	bash scripts/prepare_ecr.sh
+	bash scripts/prepare_info.sh
+	bash scripts/prepare_cluster.sh
+	tilt up -f Tiltfile-production

@@ -13,13 +13,13 @@
 					"type": "jwt",
 					"jwt": [
 						{
-							"key": "payload",
-							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
+							"key": "secret",
+							"value": "{{secret}}",
 							"type": "string"
 						},
 						{
-							"key": "secret",
-							"value": "{{secret}}",
+							"key": "payload",
+							"value": "{\n  \"sub\": \"01\",\n  \"tenant\": \"abc\",\n  \"role\": \"admin\",\n  \"aud\": \"logserver\",\n  \"iss\": \"issuer\"\n}",
 							"type": "string"
 						},
 						{
@@ -66,9 +66,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/tenants",
+					"raw": "{{host}}/api/v1/tenants",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -142,9 +142,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/tenants",
+					"raw": "{{host}}/api/v1/tenants",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -215,9 +215,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs",
+					"raw": "{{host}}/api/v1/logs",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -288,9 +288,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs/bulk",
+					"raw": "{{host}}/api/v1/logs/bulk",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -365,9 +365,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs",
+					"raw": "{{host}}/api/v1/logs",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -441,9 +441,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs/stats",
+					"raw": "{{host}}/api/v1/logs/stats",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -518,9 +518,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs/66c14550-26b7-4da9-b6e3-229fe105aad8",
+					"raw": "{{host}}/api/v1/logs/66c14550-26b7-4da9-b6e3-229fe105aad8",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -592,9 +592,9 @@
 					}
 				},
 				"url": {
-					"raw": "localhost/api/v1/logs/cleanup",
+					"raw": "{{host}}/api/v1/logs/cleanup",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"path": [
 						"api",
@@ -632,6 +632,13 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "host",
+			"type": "default"
 		}
 	]
 }
