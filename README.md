@@ -5,12 +5,36 @@ A high-performance, multi-tenant log server built with **Python** and **FastAPI*
 🔗 [**Live Demo**](http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs)
 ```bash
 # On staging machine AWS-EKS, don't worry i will shutdown it soon
-# Try to get log stats
+# Try to get log stats, it tenant scoped
 curl --location 'http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs/stats' \
---header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU' \
---data ''
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU'
 # Open websocket for streaming logs
-wscat -c "ws://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs/stream?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU
+wscat -c "ws://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs/stream?token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU"
+# Add a logs for watch stream
+curl --location 'http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap-southeast-1.amazonaws.com/api/v1/logs' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU' \
+--data-raw '{
+  "action": "update",
+  "resource_type": "user",
+  "resource_id": "123",
+  "timestamp": "2025-06-26T01:23:45.678Z",
+  "ip_address": "192.168.0.1",
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+  "before": {
+    "email": "old@example.com",
+    "name": "Old Name"
+  },
+  "after": {
+    "email": "new@example.com",
+    "name": "New Name"
+  },
+  "metadata": {
+    "editor": "admin",
+    "source": "dashboard"
+  },
+  "severity": "WARNING"
+}'
 ```
 
 ---
