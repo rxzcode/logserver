@@ -26,22 +26,26 @@ sqs = boto3.client(
     "sqs",
     endpoint_url=os.getenv("SQS_URL", "http://elasticmq:9324"),
     region_name="us-east-1",
-    aws_access_key_id="x",  # local dev dummy values
+    aws_access_key_id="x",
     aws_secret_access_key="x"
 )
 queue_url = os.getenv("SQS_QUEUE", "http://elasticmq:9324/queue/log-queue")
 
-# Clickhouse
-client = clickhouse_connect.get_client(
-    host=os.getenv("CLICKHOUSE_HOST", "localhost"),
-    port=int(os.getenv("CLICKHOUSE_PORT", 8123)),
-    username=os.getenv("CLICKHOUSE_USER"),
-    password=os.getenv("CLICKHOUSE_PASSWORD"),
-    database=os.getenv("CLICKHOUSE_DATABASE", "default")
-)
+# ClickHouse setup
+clickhouse_host = os.getenv("CLICKHOUSE_HOST", "disabled")
+clickhouse_enabled = clickhouse_host.lower() != "disabled"
+client = None
+if clickhouse_enabled:
+    client = clickhouse_connect.get_client(
+        host=clickhouse_host,
+        port=int(os.getenv("CLICKHOUSE_PORT", 8123)),
+        username=os.getenv("CLICKHOUSE_USER"),
+        password=os.getenv("CLICKHOUSE_PASSWORD"),
+        database=os.getenv("CLICKHOUSE_DATABASE", "default")
+    )
 
 # Stats store
-stats: Dict[str, any] = {
+stats: Dict[str, Any] = {
     "messages_received": 0,
     "messages_failed": 0,
     "last_received_at": None,
@@ -51,7 +55,9 @@ stats: Dict[str, any] = {
 @app.on_event("startup")
 async def start_workers():
     ensure_sqs_queue()
-    ensure_clickhouse_database_and_table()
+    if clickhouse_enabled:
+        ensure_clickhouse_database_and_table()
+
     # Worker 1: Poll and process messages from SQS
     async def poll_sqs():
         logger.info("Starting SQS poller...")
@@ -86,19 +92,15 @@ async def start_workers():
                 if logs:
                     try:
                         result = await collection.insert_many(logs, ordered=False)
-                        inserted_logs = set(result.inserted_ids)
-                        stats["messages_received"] += len(inserted_logs)
+                        stats["messages_received"] += len(result.inserted_ids)
                         stats["last_received_at"] = datetime.utcnow().isoformat()
 
-                        # Match inserted logs back to their receipt handles
-                        for handle, log in receipt_handle_to_log.items():
-                            # Only delete if inserted; assumes no _id before insert
-                            # If _id is not user-set, we can't match inserted_ids to logs
-                            # So assume success = all logs inserted
+                        for handle in receipt_handle_to_log:
                             success_receipts.append(handle)
 
-                        insert_into_clickhouse(logs)
-                        # Delete successfully inserted messages
+                        if clickhouse_enabled:
+                            insert_into_clickhouse(logs)
+
                         if success_receipts:
                             entries = [{"Id": str(i), "ReceiptHandle": h} for i, h in enumerate(success_receipts)]
                             sqs.delete_message_batch(QueueUrl=queue_url, Entries=entries)
@@ -122,9 +124,6 @@ async def start_workers():
 
 
 @app.get("/healthz")
-def health():
-    return {"status": "ok"}
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -133,7 +132,11 @@ def health():
 def get_stats():
     return stats
 
+
 def insert_into_clickhouse(logs: List[Dict[str, Any]]):
+    if not clickhouse_enabled or not client:
+        return
+
     try:
         rows = []
         for log in logs:
@@ -157,32 +160,23 @@ def insert_into_clickhouse(logs: List[Dict[str, Any]]):
             table="logdb.logs",
             data=rows,
             column_names=[
-                "id",
-                "tenant_id",
-                "user_id",
-                "action",
-                "resource_type",
-                "resource_id",
-                "timestamp",
-                "ip_address",
-                "user_agent",
-                "before",
-                "after",
-                "metadata",
-                "severity"
+                "id", "tenant_id", "user_id", "action", "resource_type", "resource_id",
+                "timestamp", "ip_address", "user_agent", "before", "after", "metadata", "severity"
             ]
         )
     except Exception as e:
         logger.error(f"ClickHouse insert failed: {e}")
         stats["messages_failed"] += len(logs)
 
+
 def ensure_clickhouse_database_and_table():
+    if not clickhouse_enabled or not client:
+        return
+
     try:
-        # Step 1: Create database if not exists
         client.command("CREATE DATABASE IF NOT EXISTS logdb")
         logger.info("ClickHouse database 'logdb' ensured.")
 
-        # Step 2: Create table if not exists
         client.command("""
         CREATE TABLE IF NOT EXISTS logdb.logs (
             id String,
@@ -203,9 +197,9 @@ def ensure_clickhouse_database_and_table():
         ORDER BY (tenant_id, timestamp)
         """)
         logger.info("ClickHouse table 'logdb.logs' ensured.")
-
     except Exception as e:
         logger.error(f"Failed to ensure ClickHouse DB/table: {e}")
+
 
 def ensure_sqs_queue():
     try:

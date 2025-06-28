@@ -89,6 +89,12 @@ logserver/
 - [x] SQS for async processing
 - [x] Tenant management
 
+- [x] Unit test coverage 95% log service
+- [x] Latency < 100ms
+- [x] Scale up 1000 CCU
+- [x] Websocket realtime stream log
+- [x] CubeJS dashboard + Clickhouse (bigdata)
+
 ---
 
 ## 🧱 High-Level Architecture
@@ -226,3 +232,27 @@ Contributions welcome — Happy Coding! 😊
 ![Websocket](./extra/Websocket.png)
 > Load Test: 10,000 requests, 1,000 concurrent - it on local docker + minikube (cause aws fee 😃)
 ![Benchmark Result](./extra/benchmark.png)
+> CUBEJS Dashboard
+![Benchmark Result](./extra/CubeJS.png)
+
+```json
+{
+  "measures": [
+    "logs.count"
+  ],
+  "dimensions": [
+    "logs.severity",
+    "logs.tenant_id"
+  ],
+  "timeDimensions": [
+    {
+      "dimension": "logs.timestamp",
+      "granularity": "day",
+      "dateRange": "last 30 days"
+    }
+  ],
+  "order": {
+    "logs.timestamp": "asc"
+  }
+}
+```
