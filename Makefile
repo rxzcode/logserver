@@ -52,6 +52,8 @@ up-prod:
 tilt-prod:
 	tilt up -f Tiltfile-production
 
+cost:
+	./scripts/aws_cost.sh
 
 ########
 # TEST #

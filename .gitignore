@@ -62,7 +62,7 @@ coverage.xml
 .history
 
 # IDEs and editors
-.vscode/
+# .vscode/
 .idea/
 *.sublime-workspace
 *.sublime-project

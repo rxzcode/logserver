@@ -1,3 +1,4 @@
+from pymongo import DESCENDING
 from fastapi import APIRouter, Request, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from uuid import uuid4
 from typing import List, Optional, Dict
@@ -69,17 +70,53 @@ async def bulk_create(entries: List[LogEntry], request: Request):
     response_model=ResponseWrapper[List[Log]],
     status_code=status.HTTP_200_OK,
     responses={
-        200: {"description": "Logs created"},
+        200: {"description": "Logs fetched"},
         422: {"description": "Validation failed"}
     }
 )
-async def get_logs(request: Request, severity: Optional[Severity] = None):
+async def get_logs(
+    request: Request,
+    page: int = Query(1, ge=1),
+    size: int = Query(50, ge=1, le=100),
+    severity: Optional[Severity] = None,
+    search: Optional[str] = None,
+):
     query = {"tenant_id": request.state.tenant_id}
+
+    # Optional severity filter
     if severity:
         query["severity"] = severity
-    cursor = collection.find(query)
+
+    # Optional search across text fields
+    if search:
+        regex = {"$regex": search, "$options": "i"}
+        query["$or"] = [
+            {"action": regex},
+            {"resource_type": regex},
+            {"resource_id": regex},
+            {"ip_address": regex},
+            {"user_agent": regex},
+            {"metadata": regex},
+            {"before": regex},
+            {"after": regex},
+        ]
+
+    cursor = collection.find(query).sort("timestamp", DESCENDING)
+    total = await collection.count_documents(query)
+    cursor.skip((page - 1) * size).limit(size)
     logs = [clean(doc) async for doc in cursor]
-    return ResponseWrapper(code=200, msg="ok", data=logs)
+
+    return ResponseWrapper(
+        code=200,
+        msg="ok",
+        data=logs,
+        meta={
+            "total": total,
+            "page": page,
+            "size": size,
+            "pages": (total + size - 1) // size
+        }
+    )
 
 @router.get("/stats",
     response_model=ResponseWrapper[Dict[str, int]],

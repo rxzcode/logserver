@@ -18,6 +18,7 @@ class ResponseWrapper(GenericModel, Generic[T]):
     code: int
     msg: str
     data: T
+    meta: Optional[Dict[str, Any]] = None
 
 class LogEntry(BaseModel):
     action: str
