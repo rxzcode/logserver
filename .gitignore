@@ -78,4 +78,5 @@ coverage.xml
 
 # local
 .local
+coverage
 Tiltfile-production
