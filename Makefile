@@ -60,3 +60,6 @@ cost:
 ########
 test:
 	./scripts/test_all.sh
+
+bench:
+	./scripts/run_benchmark.sh
