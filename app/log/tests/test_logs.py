@@ -1,10 +1,12 @@
 import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi import status
 from fastapi.testclient import TestClient
-from fastapi import FastAPI, Request
+from fastapi.websockets import WebSocketDisconnect, WebSocketState
+from fastapi import FastAPI, Request, WebSocket
 
 from routes.logs import router
+from core.broadcast import log_broadcaster
 
 # Setup FastAPI test app with required middleware
 app = FastAPI()
@@ -75,14 +77,57 @@ def test_bulk_create(mock_broadcast, mock_sendLog, client):
 
 
 # --- GET /logs ---
-@patch("routes.logs.collection.find")
-@pytest.mark.asyncio
-async def test_get_logs(mock_find, client):
-    mock_find.return_value = AsyncCursor([msg_response, msg_response])
-    res = client.get("/logs")
-    assert res.status_code == 200
-    assert isinstance(res.json()["data"], list)
+@pytest.fixture
+def mock_motor_cursor():
+    # This mock will simulate the chained calls: find().sort().skip().limit()
+    mock_cursor = MagicMock()
+    mock_cursor.sort.return_value = mock_cursor
+    mock_cursor.skip.return_value = mock_cursor
+    mock_cursor.limit.return_value = mock_cursor
+    mock_cursor.__aiter__.return_value = [
+        msg_response,
+        msg_response,
+    ]
+    return mock_cursor
 
+_client = TestClient(app)
+@patch("routes.logs.collection")
+def test_get_logs(mock_collection, mock_motor_cursor):
+    app.dependency_overrides = {}
+    mock_collection.find.return_value = mock_motor_cursor
+    mock_collection.count_documents = AsyncMock(return_value=2)
+
+    headers = {"x-auth-tenant": "tenant123"}
+    response = _client.get("/logs", headers=headers)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["code"] == 200
+    assert len(data["data"]) == 2
+    assert data["meta"]["total"] == 2
+    assert data["meta"]["pages"] == 1
+
+    mock_collection.find.assert_called_once()
+    mock_collection.count_documents.assert_awaited_once()
+
+@patch("routes.logs.collection")
+def test_get_logs_search(mock_collection, mock_motor_cursor):
+    app.dependency_overrides = {}
+    mock_collection.find.return_value = mock_motor_cursor
+    mock_collection.count_documents = AsyncMock(return_value=2)
+
+    headers = {"x-auth-tenant": "tenant123"}
+    response = _client.get("/logs?severity=ERROR&search=login", headers=headers)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["code"] == 200
+    assert len(data["data"]) == 2
+    assert data["meta"]["total"] == 2
+    assert data["meta"]["pages"] == 1
+
+    mock_collection.find.assert_called_once()
+    mock_collection.count_documents.assert_awaited_once()
 
 # --- GET /logs/stats ---
 @patch("routes.logs.collection")
@@ -130,6 +175,19 @@ async def test_cleanup_logs(mock_delete_many, client):
     assert res.json()["data"]["deleted_count"] == 5
     mock_delete_many.assert_called_once_with({"tenant_id": "test-tenant"})
 
+
+# --- WEBSOCKET /stream ---
+# Define test client directly
+_client = TestClient(app)
+@patch("routes.logs.log_broadcaster.connect", new_callable=AsyncMock)
+@patch("routes.logs.log_broadcaster.disconnect", new_callable=AsyncMock)
+def test_websocket_missing_tenant_header(mock_disconnect, mock_connect):
+    with pytest.raises(WebSocketDisconnect) as exc_info:
+        with _client.websocket_connect("/logs/stream", headers={"x-auth-role": "admin"}) as ws:
+            ws.send_text("should not work")
+    assert exc_info.value.code == 4001
+    mock_connect.assert_not_called()
+    mock_disconnect.assert_not_called()
 
 class AsyncCursor:
     def __init__(self, items):

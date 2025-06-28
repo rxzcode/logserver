@@ -27,10 +27,12 @@ jq -r '
       $items[] |
       (
         (.service | if length > 30 then (.[:27] + "...") else . end | lpad(35)) + " | " +
-        (("*" * ((.cost / $max * 40) | floor)) + " \(.cost) USD")
+        ("\(.cost) USD")
       )
     ),
     "------------------------------------------------------------",
     ("Total" | lpad(35)) + " | \($total) USD",
     ("Average Daily Cost" | lpad(35)) + " | \($daily_avg | .*100 | round / 100 | tostring) USD"
 '
+
+# ("*" * ((.cost / $max * 40) | floor)) +

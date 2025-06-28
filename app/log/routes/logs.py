@@ -78,14 +78,9 @@ async def get_logs(
     request: Request,
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=100),
-    severity: Optional[Severity] = None,
     search: Optional[str] = None,
 ):
     query = {"tenant_id": request.state.tenant_id}
-
-    # Optional severity filter
-    if severity:
-        query["severity"] = severity
 
     # Optional search across text fields
     if search:
@@ -169,14 +164,7 @@ async def cleanup_logs(request: Request):
 @router.websocket("/stream")
 async def log_stream(ws: WebSocket):
     tenant_id = ws.headers.get("x-auth-tenant")
-    role = ws.headers.get("x-auth-role")
     if not tenant_id:
         await ws.close(code=4001)
         return
-
     await log_broadcaster.connect(tenant_id, ws)
-    try:
-        while True:
-            await ws.receive_text()
-    except WebSocketDisconnect:
-        log_broadcaster.disconnect(tenant_id, ws)

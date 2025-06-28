@@ -1,5 +1,6 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 import asyncio
+from fastapi import WebSocketDisconnect
 from fastapi.encoders import jsonable_encoder
 from starlette.websockets import WebSocket
 
@@ -9,10 +10,18 @@ class LogBroadcaster:
         self.connections: Dict[str, List[WebSocket]] = {}
         self.queue: asyncio.Queue[Tuple[str, dict]] = asyncio.Queue()
         self._worker_started = False
+        self._worker_task: asyncio.Task | None = None
 
     async def connect(self, tenant_id: str, websocket: WebSocket):
         await websocket.accept()
         self.connections.setdefault(tenant_id, []).append(websocket)
+        try:
+            while True:
+                msg = await websocket.receive_text()
+                if msg == "ping":
+                    await websocket.send_text("pong")
+        except WebSocketDisconnect:
+            self.disconnect(tenant_id, websocket)
 
     def disconnect(self, tenant_id: str, websocket: WebSocket):
         if tenant_id in self.connections:
@@ -22,10 +31,13 @@ class LogBroadcaster:
                 del self.connections[tenant_id]
 
     async def _worker(self):
-        while True:
-            tenant_id, data = await self.queue.get()
-            await self._broadcast(tenant_id, data)
-            self.queue.task_done()
+        try:
+            while True:
+                tenant_id, data = await self.queue.get()
+                await self._broadcast(tenant_id, data)
+                self.queue.task_done()
+        except asyncio.CancelledError:
+            pass  # Prevent exception when test ends
 
     async def _broadcast(self, tenant_id: str, data: dict):
         encoded = jsonable_encoder(data)
@@ -41,13 +53,20 @@ class LogBroadcaster:
             self.disconnect(tenant_id, ws)
 
     def broadcast(self, tenant_id: str, data: dict):
-        """Non-blocking broadcast: enqueue job."""
         self.queue.put_nowait((tenant_id, data))
 
     def start_worker(self):
         if not self._worker_started:
-            asyncio.create_task(self._worker())
+            self._worker_task = asyncio.create_task(self._worker())
             self._worker_started = True
+
+    async def shutdown(self):
+        if self._worker_task:
+            self._worker_task.cancel()
+            try:
+                await self._worker_task
+            except asyncio.CancelledError:
+                pass
 
 
 log_broadcaster = LogBroadcaster()
