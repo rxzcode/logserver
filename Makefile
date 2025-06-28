@@ -7,9 +7,11 @@ minikube-start:
 	@kubectl config use-context minikube
 	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --addons=ingress
 
-# Start tunnel in background (for LoadBalancer services)
-minikube-config:
-	@nohup minikube tunnel > /dev/null 2>&1 &
+minikube-tunnel:
+	@sudo pkill -f "minikube tunnel" || true
+	@sudo nohup minikube tunnel > /dev/null 2>&1 &
+	@sleep 3
+	@echo "✅ Tunnel started (PID: $$(pgrep -f 'minikube tunnel'))"
 
 # Launch Tilt (foreground)
 tilt:
@@ -20,7 +22,7 @@ tilt-down:
 	tilt down
 
 # Full startup
-up: minikube-start tilt minikube-config
+up: minikube-start minikube-tunnel tilt
 
 # Optional: Cleanup everything
 down:
@@ -49,3 +51,25 @@ up-prod:
 
 tilt-prod:
 	tilt up -f Tiltfile-production
+
+
+########
+# TEST #
+########
+test-log:
+	PYTHONPATH=./app pytest app/log/tests
+
+test-auth:
+	PYTHONPATH=./app pytest app/auth/tests
+
+test-tenant:
+	PYTHONPATH=./app pytest app/tenant/tests
+
+test-all:
+	PYTHONPATH=./app pytest app/*/tests
+
+coverage-log:
+	PYTHONPATH=./app coverage run -m pytest app/log/tests && coverage html -d coverage-log
+
+coverage-auth:
+	PYTHONPATH=./app coverage run -m pytest app/auth/tests && coverage html -d coverage-auth
