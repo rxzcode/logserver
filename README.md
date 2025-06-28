@@ -94,6 +94,7 @@ logserver/
 - [x] Scale up 1000 CCU
 - [x] Websocket realtime stream log
 - [x] CubeJS dashboard + Clickhouse (bigdata)
+- [x] Optimize stats API with mongo index
 
 ---
 
