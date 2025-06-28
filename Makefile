@@ -4,8 +4,8 @@
 
 # Start minikube if not already running
 minikube-start:
-	@kubectl config use-context minikube
 	@minikube status | grep -q "Running" || minikube start --driver=docker --cpus=4 --addons=ingress
+	@kubectl config use-context minikube
 
 minikube-tunnel:
 	@sudo pkill -f "minikube tunnel" || true
