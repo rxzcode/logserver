@@ -45,3 +45,10 @@ spec:
                 name: tenant-service
                 port:
                   number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cubejs
+                port:
+                  number: 4000

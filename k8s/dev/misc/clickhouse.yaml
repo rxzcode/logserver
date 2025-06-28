@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-user-config
+data:
+  myuser.xml: |
+    <yandex>
+      <users>
+        <myuser>
+          <password>mypassword</password>
+          <networks>
+            <ip>::/0</ip>
+          </networks>
+          <profile>default</profile>
+          <quota>default</quota>
+        </myuser>
+      </users>
+    </yandex>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      containers:
+        - name: clickhouse
+          image: clickhouse/clickhouse-server:latest
+          ports:
+            - containerPort: 9000
+            - containerPort: 8123
+          volumeMounts:
+            - name: config
+              mountPath: /etc/clickhouse-server/users.d/myuser.xml
+              subPath: myuser.xml
+      volumes:
+        - name: config
+          configMap:
+            name: clickhouse-user-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse
+  labels:
+    app: clickhouse
+spec:
+  selector:
+    app: clickhouse
+  ports:
+    - name: native
+      port: 9000
+      targetPort: 9000
+    - name: http
+      port: 8123
+      targetPort: 8123
+  type: ClusterIP

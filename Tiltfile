@@ -8,6 +8,8 @@ docker_build("log-worker", "./app/log_worker")
 k8s_yaml(
     [
         # Networking and Ingress
+        "k8s/dev/misc/clickhouse.yaml",
+        "k8s/dev/misc/cubejs.yaml",
         "k8s/dev/misc/elasticmq-deployment.yaml",
         "k8s/dev/misc/ingress.yaml",
 

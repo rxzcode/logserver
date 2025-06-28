@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cubejs
+  namespace: default
+spec:
+  selector:
+    app: cubejs
+  ports:
+    - port: 4000
+      targetPort: 4000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cubejs
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cubejs
+  template:
+    metadata:
+      labels:
+        app: cubejs
+    spec:
+      containers:
+        - name: cubejs
+          image: cubejs/cube:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: CUBEJS_DB_TYPE
+              value: "clickhouse"
+            - name: CUBEJS_DB_HOST
+              value: "clickhouse"
+            - name: CUBEJS_DB_PORT
+              value: "8123"
+            - name: CUBEJS_DB_NAME
+              value: "logdb"
+            - name: CUBEJS_DB_USER
+              value: "myuser"
+            - name: CUBEJS_DB_PASS
+              value: "mypassword"
+            - name: CUBEJS_DEV_MODE
+              value: "true"

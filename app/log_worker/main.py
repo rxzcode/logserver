@@ -4,9 +4,10 @@ import json
 import asyncio
 import os
 import logging
+import clickhouse_connect
 from motor.motor_asyncio import AsyncIOMotorClient
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List, Any
 
 # Setup FastAPI app
 app = FastAPI()
@@ -30,6 +31,15 @@ sqs = boto3.client(
 )
 queue_url = os.getenv("SQS_QUEUE", "http://elasticmq:9324/queue/log-queue")
 
+# Clickhouse
+client = clickhouse_connect.get_client(
+    host=os.getenv("CLICKHOUSE_HOST", "localhost"),
+    port=int(os.getenv("CLICKHOUSE_PORT", 8123)),
+    username=os.getenv("CLICKHOUSE_USER"),
+    password=os.getenv("CLICKHOUSE_PASSWORD"),
+    database=os.getenv("CLICKHOUSE_DATABASE", "default")
+)
+
 # Stats store
 stats: Dict[str, any] = {
     "messages_received": 0,
@@ -40,6 +50,8 @@ stats: Dict[str, any] = {
 
 @app.on_event("startup")
 async def start_workers():
+    ensure_sqs_queue()
+    ensure_clickhouse_database_and_table()
     # Worker 1: Poll and process messages from SQS
     async def poll_sqs():
         logger.info("Starting SQS poller...")
@@ -85,6 +97,7 @@ async def start_workers():
                             # So assume success = all logs inserted
                             success_receipts.append(handle)
 
+                        insert_into_clickhouse(logs)
                         # Delete successfully inserted messages
                         if success_receipts:
                             entries = [{"Id": str(i), "ReceiptHandle": h} for i, h in enumerate(success_receipts)]
@@ -112,7 +125,93 @@ async def start_workers():
 def health():
     return {"status": "ok"}
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.get("/stats")
 def get_stats():
     return stats
+
+def insert_into_clickhouse(logs: List[Dict[str, Any]]):
+    try:
+        rows = []
+        for log in logs:
+            rows.append((
+                log.get("id", ""),
+                log.get("tenant_id", ""),
+                log.get("user_id", ""),
+                log.get("action", ""),
+                log.get("resource_type", ""),
+                log.get("resource_id", ""),
+                datetime.fromisoformat(log.get("timestamp").replace("Z", "+00:00")) if isinstance(log.get("timestamp"), str) else log.get("timestamp"),
+                log.get("ip_address"),
+                log.get("user_agent"),
+                json.dumps(log.get("before")) if log.get("before") else None,
+                json.dumps(log.get("after")) if log.get("after") else None,
+                json.dumps(log.get("metadata")) if log.get("metadata") else None,
+                log.get("severity", "")
+            ))
+
+        client.insert(
+            table="logdb.logs",
+            data=rows,
+            column_names=[
+                "id",
+                "tenant_id",
+                "user_id",
+                "action",
+                "resource_type",
+                "resource_id",
+                "timestamp",
+                "ip_address",
+                "user_agent",
+                "before",
+                "after",
+                "metadata",
+                "severity"
+            ]
+        )
+    except Exception as e:
+        logger.error(f"ClickHouse insert failed: {e}")
+        stats["messages_failed"] += len(logs)
+
+def ensure_clickhouse_database_and_table():
+    try:
+        # Step 1: Create database if not exists
+        client.command("CREATE DATABASE IF NOT EXISTS logdb")
+        logger.info("ClickHouse database 'logdb' ensured.")
+
+        # Step 2: Create table if not exists
+        client.command("""
+        CREATE TABLE IF NOT EXISTS logdb.logs (
+            id String,
+            tenant_id String,
+            user_id String,
+            action String,
+            resource_type String,
+            resource_id String,
+            timestamp DateTime,
+            ip_address Nullable(String),
+            user_agent Nullable(String),
+            before Nullable(String),
+            after Nullable(String),
+            metadata Nullable(String),
+            severity String
+        )
+        ENGINE = MergeTree
+        ORDER BY (tenant_id, timestamp)
+        """)
+        logger.info("ClickHouse table 'logdb.logs' ensured.")
+
+    except Exception as e:
+        logger.error(f"Failed to ensure ClickHouse DB/table: {e}")
+
+def ensure_sqs_queue():
+    try:
+        response = sqs.create_queue(QueueName="log-queue")
+        global queue_url
+        queue_url = response['QueueUrl']
+        logger.info(f"SQS queue ensured: {queue_url}")
+    except Exception as e:
+        logger.error(f"Failed to create/verify SQS queue: {e}")

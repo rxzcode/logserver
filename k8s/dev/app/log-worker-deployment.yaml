@@ -24,3 +24,13 @@ spec:
               value: http://elasticmq:9324/queue/log-queue
             - name: MONGODB_URI
               value: mongodb://mongodb:27017
+            - name: CLICKHOUSE_HOST
+              value: "clickhouse"
+            - name: CLICKHOUSE_PORT
+              value: "8123"
+            - name: CLICKHOUSE_USER
+              value: "myuser"
+            - name: CLICKHOUSE_PASSWORD
+              value: "mypassword"
+            - name: CLICKHOUSE_DATABASE
+              value: "default"
