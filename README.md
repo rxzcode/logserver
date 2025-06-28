@@ -214,12 +214,14 @@ Contributions welcome — Happy Coding! 😊
 
 > Postman API:
 
-- [📥 Download Postman Collection](./extra/LogServer.postman_collection.json)
+- [📥 Download Postman Collection](./extra/LogServer.postman_collection.v1.1.json)
 - [📥 Download Postman Local Env](./extra/log-localhost.postman_environment.json)
 - [📥 Download Postman Stage Env](./extra/log-aws.postman_environment.json)
 
 ![Postman](./extra/PostmanAPI.png)
 
+> Unit test coverage (make test):
+![Websocket](./extra/UnitTest.png)
 > Websocket:
 ![Websocket](./extra/Websocket.png)
 > Load Test: 10,000 requests, 1,000 concurrent - it on local docker + minikube (cause aws fee 😃)
