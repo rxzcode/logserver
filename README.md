@@ -194,6 +194,13 @@ pip install -r requirements.txt
 make up-prod
 ```
 
+### 5. Unit test and coverage
+
+```bash
+# Run unit test coverage and combine, with html server
+make test
+```
+
 ---
 
 ## 📜 License

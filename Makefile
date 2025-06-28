@@ -56,20 +56,5 @@ tilt-prod:
 ########
 # TEST #
 ########
-test-log:
-	PYTHONPATH=./app pytest app/log/tests
-
-test-auth:
-	PYTHONPATH=./app pytest app/auth/tests
-
-test-tenant:
-	PYTHONPATH=./app pytest app/tenant/tests
-
-test-all:
-	PYTHONPATH=./app pytest app/*/tests
-
-coverage-log:
-	PYTHONPATH=./app coverage run -m pytest app/log/tests && coverage html -d coverage-log
-
-coverage-auth:
-	PYTHONPATH=./app coverage run -m pytest app/auth/tests && coverage html -d coverage-auth
+test:
+	./scripts/test_all.sh
