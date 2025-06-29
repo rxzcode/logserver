@@ -46,16 +46,16 @@ curl --location 'http://k8s-ingressn-nginxing-224a407861-0fde472c69e54cd3.elb.ap
 
 | Method | Endpoint                     | Description                           | Tenant Scoped |
 |--------|------------------------------|---------------------------------------|----------------|
-| POST   | `/api/v1/logs`               | Create a log entry                    | ✅ Yes         |
-| GET    | `/api/v1/logs`               | Search/filter logs                    | ✅ Yes         |
-| GET    | `/api/v1/logs/{id}`          | Get a specific log entry              | ✅ Yes         |
-| GET    | `/api/v1/logs/export`        | Export logs                           | ✅ Yes         |
-| GET    | `/api/v1/logs/stats`         | Retrieve log statistics               | ✅ Yes         |
-| POST   | `/api/v1/logs/bulk`          | Bulk log creation                     | ✅ Yes         |
-| DELETE | `/api/v1/logs/cleanup`       | Clean up old logs                     | ✅ Yes         |
-| WS     | `/api/v1/logs/stream`        | Real-time log streaming (WebSocket)   | ✅ Yes         |
-| GET    | `/api/v1/tenants`            | List tenants (Admin only)             | ❌ No          |
-| POST   | `/api/v1/tenants`            | Create a tenant (Admin only)          | ❌ No          |
+| POST   | `/api/v1/logs`               | Create a log entry                    | Yes            |
+| GET    | `/api/v1/logs`               | Search/filter logs                    | Yes            |
+| GET    | `/api/v1/logs/{id}`          | Get a specific log entry              | Yes            |
+| GET    | `/api/v1/logs/export`        | Export logs                           | Yes            |
+| GET    | `/api/v1/logs/stats`         | Retrieve log statistics               | Yes            |
+| POST   | `/api/v1/logs/bulk`          | Bulk log creation                     | Yes            |
+| DELETE | `/api/v1/logs/cleanup`       | Clean up old logs                     | Yes            |
+| WS     | `/api/v1/logs/stream`        | Real-time log streaming (WebSocket)   | Yes            |
+| GET    | `/api/v1/tenants`            | List tenants (Admin only)             | No,Admin       |
+| POST   | `/api/v1/tenants`            | Create a tenant (Admin only)          | No,Admin       |
 
 ---
 
