@@ -30,7 +30,7 @@ kubectl exec "$POD_NAME" -- sh -c '
 
 echo "Running hey benchmark..."
 kubectl exec "$POD_NAME" -- sh -c "
-  hey -n 50000 -c 500 \
+  hey -n 10000 -c 1000 \
     -m POST \
     -H 'Content-Type: application/json' \
     -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMSIsInRlbmFudCI6ImFiYyIsInJvbGUiOiJhZG1pbiIsImF1ZCI6ImxvZ3NlcnZlciIsImlzcyI6Imlzc3VlciJ9.QHBRCx9wYl0Nml07N54kCWKOV07dl2uN4o77vdWdFtU' \
