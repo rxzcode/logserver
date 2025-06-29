@@ -46,3 +46,9 @@ spec:
               value: "mypassword"
             - name: CUBEJS_DEV_MODE
               value: "true"
+            - name: CUBEJS_WEB_SOCKETS
+              value: "true"
+            - name: CUBEJS_API_URL
+              value: "/"
+            - name: CUBEJS_BASE_PATH
+              value: "/"

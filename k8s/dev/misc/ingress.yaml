@@ -45,10 +45,22 @@ spec:
                 name: tenant-service
                 port:
                   number: 80
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: cubejs
-                port:
-                  number: 4000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cubejs-ingress
+  namespace: default
+  annotations:
+spec:
+  rules:
+  - host: "cube.localhost"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cubejs
+            port:
+              number: 4000

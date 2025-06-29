@@ -93,7 +93,7 @@ logserver/
 - [x] Latency < 100ms
 - [x] Scale up 1000 CCU
 - [x] Websocket realtime stream log
-- [x] CubeJS dashboard + Clickhouse (bigdata)
+- [x] CubeJS dashboard + Clickhouse (bigdata) - cube.localhost
 - [x] Optimize stats API with mongo index
 
 ---
@@ -231,9 +231,10 @@ Contributions welcome — Happy Coding! 😊
 ![Websocket](./extra/UnitTest.png)
 > Websocket:
 ![Websocket](./extra/Websocket.png)
-> Load Test: 10,000 requests, 1,000 concurrent (hey -n 10000 -c 1000) - it on local docker + minikube (cause aws fee 😃)
+> Load Test: 10,000 requests, 1,000 concurrent (hey -n 10000 -c 1000)
+> It on local docker + minikube (cause aws fee 😃)
 ![Benchmark Result](./extra/benchmark.png)
-> CUBEJS Dashboard: Example with 10_000_000 rows of logs (<1s query)
+> CUBEJS Dashboard cube.localhost: Example with 10_000_000 rows of logs (<1s query)
 ![Benchmark Result](./extra/CubeJS.png)
 
 ```json
