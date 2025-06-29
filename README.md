@@ -238,13 +238,8 @@ Contributions welcome — Happy Coding! 😊
 
 ```json
 {
-  "measures": [
-    "logs.count"
-  ],
-  "dimensions": [
-    "logs.severity",
-    "logs.tenant_id"
-  ],
+  "measures": ["logs.count"],
+  "dimensions": ["logs.severity"],
   "timeDimensions": [
     {
       "dimension": "logs.timestamp",
@@ -254,6 +249,12 @@ Contributions welcome — Happy Coding! 😊
   ],
   "order": {
     "logs.timestamp": "asc"
+  },
+  "pivotConfig": {
+    "x": ["logs.timestamp.day"],
+    "y": ["logs.severity"],
+    "fillMissingDates": true,
+    "joinDateRange": false
   }
 }
 ```
@@ -262,3 +263,4 @@ Contributions welcome — Happy Coding! 😊
 - It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics.
 
 👉 [See this public demo of querying 1 billion rows](https://play.clickhouse.com/play?file=billion-row-log-query) using ClickHouse.
+
