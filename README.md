@@ -100,7 +100,7 @@ logserver/
 
 ## 🧱 High-Level Architecture
 
-### 🔹 Microservices
+### 🔹 Microservices - monorepo
 
 | Service       | Responsibility |
 |---------------|----------------|
