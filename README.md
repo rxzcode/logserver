@@ -143,19 +143,6 @@ logserver/
 
 ---
 
-## 🔁 Request Flow (Textual)
-
-```text
-Client
-  ↓
-Ingress (nginx or ALB)
-  ↓
-Auth Service (JWT + RBAC)
-  ├─ [✅ OK] → Log Service → MongoDB
-  ├─ [✅ OK] → Tenant Service
-  └─ [❌ Not OK] → 401 Unauthorized
-```
-
 ## 🔁 Request Flow (Mermaid Diagram)
 
 ```mermaid
@@ -165,16 +152,35 @@ config:
     htmlLabels: false
   layout: dagre
 ---
+
 flowchart LR
   A["Client"] --> B["Ingress / ALB"]
-  B --> C{"Auth RBAC"}
-  C -- ✅ OK --> D["Log Service"] & E["Tenant Service"]
-  D --> SQS["SQS Queue"] & WS["WebSocket Broadcast"]
-  SQS --> LW["Log Worker"]
-  LW --> DB["MongoDB"]
-  LW --> OLAP["Clickhouse"]
-  OLAP --> CUBE["CubeJS"]
+  subgraph ingress ["Gateway Auth"]
+    B["Ingress / ALB"]
+    B --> C{"Auth RBAC"}
+  end
+
+  subgraph services ["Application Services"]
+    C -- ✅ OK --> D["Log Service"]
+    C -- ✅ OK --> E["Tenant Service"]
+    D --> SQS["SQS Queue"]
+    D --> WS["WebSocket Broadcast"]
+    SQS --> LW["Log Worker"]
+  end
+
   C -- ❌ Not OK --> F["401 Unauthorized"]
+
+  subgraph dbs ["Databases and OLAP"]
+    DB["MongoDB"]
+    OLAP["Clickhouse"]
+    CUBE["CubeJS"]
+    E <--> DB
+    OLAP --> CUBE
+    DB --> D
+    LW --> DB
+    LW --> OLAP
+  end
+
 ```
 
 ---
@@ -188,14 +194,16 @@ flowchart LR
 ```bash
 git clone https://github.com/rxzcode/logserver.git
 cd logserver
-make up             # Starts Minikube and runs services via Tilt
-minikube tunnel     # Opens access to http://localhost/api/v1/logs
+
+# Starts Minikube and runs services via Tilt, open tunnel localhost, cube.localhost
+make up
 ```
 
 ### 2. Run Benchmark
 
 ```bash
-make benchmark      # Launches a benchmarking pod inside Minikube using hey
+# Launches a benchmarking pod inside Minikube using hey
+make benchmark
 ```
 
 ### 3. Local Python Development
@@ -207,18 +215,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Deploy to AWS (Production)
-
-```bash
-# Spin up production infrastructure and deploy using Tilt
-make up-prod
-```
-
-### 5. Unit test and coverage
+### 4. Unit test and coverage
 
 ```bash
 # Run unit test coverage and combine, with html server
 make test
+```
+
+### 5. Deploy to AWS (Production)
+
+```bash
+# Spin up production infrastructure and deploy using Tilt
+make up-prod
 ```
 
 ---
@@ -274,6 +282,6 @@ Contributions welcome — Happy Coding! 😊
 ```
 
 - With [ClickHouse](https://clickhouse.com/) and an index like `ENGINE = MergeTree ORDER BY (tenant_id, timestamp, ...)`, you can **query and aggregate billions of rows in seconds**. There’s a [ClickHouse Cloud](https://clickhouse.com/cloud) option as well — it’s often **significantly cheaper than [Snowflake](https://www.snowflake.com/)**.
-- It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics. CubeJS can be a GraphQL server - can export client (reactJS) code for custom dashboard. Yeah it also have build in playground at cube.localhost
+- It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics. CubeJS can be a GraphQL server - Export client (reactJS) code for custom dashboard. Yeah in this MVP cube playground available at cube.localhost
 
-👉 [See this public demo of querying 1 billion rows](https://play.clickhouse.com/play?file=billion-row-log-query) using ClickHouse.
+👉 [See this public demo of querying 1 billion rows](https://clickhouse.com/blog/real-world-data-noaa-climate-data) using ClickHouse.
