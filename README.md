@@ -231,9 +231,9 @@ Contributions welcome — Happy Coding! 😊
 ![Websocket](./extra/UnitTest.png)
 > Websocket:
 ![Websocket](./extra/Websocket.png)
-> Load Test: 10,000 requests, 1,000 concurrent - it on local docker + minikube (cause aws fee 😃)
+> Load Test: 10,000 requests, 1,000 concurrent (hey -n 10000 -c 1000) - it on local docker + minikube (cause aws fee 😃)
 ![Benchmark Result](./extra/benchmark.png)
-> CUBEJS Dashboard
+> CUBEJS Dashboard: Example with 10_000_000 rows of logs (<1s query)
 ![Benchmark Result](./extra/CubeJS.png)
 
 ```json
@@ -263,4 +263,3 @@ Contributions welcome — Happy Coding! 😊
 - It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics.
 
 👉 [See this public demo of querying 1 billion rows](https://play.clickhouse.com/play?file=billion-row-log-query) using ClickHouse.
-
