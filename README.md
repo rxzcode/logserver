@@ -102,12 +102,23 @@ logserver/
 
 ### 🔹 Microservices - monorepo
 
-| Service       | Responsibility |
-|---------------|----------------|
-| `auth`        | JWT authentication, RBAC, tenant isolation. Runs as FastAPI or AWS Lambda. |
-| `log`         | Handles all log CRUD, filtering, exporting, and statistics. |
-| `log_worker`  | Background processor (SQS/ElasticMQ consumer). |
-| `tenant`      | Tenant creation and listing (admin access). |
+- Internal Application Services
+
+| Service      | Responsibility                                                                                 |
+|--------------|------------------------------------------------------------------------------------------------|
+| `auth`       | JWT authentication, RBAC, tenant isolation. Runs as FastAPI or AWS Lambda.                     |
+| `log`        | Handles all log CRUD, filtering, exporting, and statistics.                                   |
+| `log_worker` | Background processor (SQS/ElasticMQ consumer).                                                |
+| `tenant`     | Tenant creation and listing (admin access).                                                   |
+
+- 3rd Party Services
+
+| Service      | Responsibility                                                                                 |
+|--------------|------------------------------------------------------------------------------------------------|
+| `mongodb`    | Primary database for storing application data, including logs and tenant information.         |
+| `elasticmq`  | Message queue service used by `log_worker` for asynchronous log processing and task queuing.  |
+| `cubejs`     | Analytics and reporting service providing OLAP queries and dashboard capabilities.            |
+| `clickhouse` | Columnar OLAP database optimized for fast analytical queries used by `cubejs`.                |
 
 ---
 
@@ -161,6 +172,8 @@ flowchart LR
   D --> SQS["SQS Queue"] & WS["WebSocket Broadcast"]
   SQS --> LW["Log Worker"]
   LW --> DB["MongoDB"]
+  LW --> OLAP["Clickhouse"]
+  OLAP --> CUBE["CubeJS"]
   C -- ❌ Not OK --> F["401 Unauthorized"]
 ```
 
@@ -261,6 +274,6 @@ Contributions welcome — Happy Coding! 😊
 ```
 
 - With [ClickHouse](https://clickhouse.com/) and an index like `ENGINE = MergeTree ORDER BY (tenant_id, timestamp, ...)`, you can **query and aggregate billions of rows in seconds**. There’s a [ClickHouse Cloud](https://clickhouse.com/cloud) option as well — it’s often **significantly cheaper than [Snowflake](https://www.snowflake.com/)**.
-- It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics.
+- It works perfectly with [CubeJS](https://cube.dev/) [pre-aggregations](https://cube.dev/docs/pre-aggregations/introduction) for high-performance analytics. CubeJS can be a GraphQL server - can export client (reactJS) code for custom dashboard. Yeah it also have build in playground at cube.localhost
 
 👉 [See this public demo of querying 1 billion rows](https://play.clickhouse.com/play?file=billion-row-log-query) using ClickHouse.
